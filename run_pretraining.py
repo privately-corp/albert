@@ -153,7 +153,7 @@ def model_fn_builder(albert_config, init_checkpoint, learning_rate,
     # Note: We keep this feature name `next_sentence_labels` to be compatible
     # with the original data created by lanzhzh@. However, in the ALBERT case
     # it does represent sentence_order_labels.
-    sentence_order_labels = features["next_sentence_labels"]
+    # sentence_order_labels = features["next_sentence_labels"]
 
     is_training = (mode == tf.estimator.ModeKeys.TRAIN)
 
@@ -173,11 +173,12 @@ def model_fn_builder(albert_config, init_checkpoint, learning_rate,
                                                  masked_lm_ids,
                                                  masked_lm_weights)
 
-    (sentence_order_loss, sentence_order_example_loss,
-     sentence_order_log_probs) = get_sentence_order_output(
-         albert_config, model.get_pooled_output(), sentence_order_labels)
+    # (sentence_order_loss, sentence_order_example_loss,
+    #  sentence_order_log_probs) = get_sentence_order_output(
+    #      albert_config, model.get_pooled_output(), sentence_order_labels)
 
-    total_loss = masked_lm_loss + sentence_order_loss
+    # total_loss = masked_lm_loss + sentence_order_loss
+    total_loss = masked_lm_loss
 
     tvars = tf.trainable_variables()
 
@@ -233,9 +234,12 @@ def model_fn_builder(albert_config, init_checkpoint, learning_rate,
 
       def metric_fn(*args):
         """Computes the loss and accuracy of the model."""
+        # (masked_lm_example_loss, masked_lm_log_probs, masked_lm_ids,
+        #  masked_lm_weights, sentence_order_example_loss,
+        #  sentence_order_log_probs, sentence_order_labels) = args[:7]
+
         (masked_lm_example_loss, masked_lm_log_probs, masked_lm_ids,
-         masked_lm_weights, sentence_order_example_loss,
-         sentence_order_log_probs, sentence_order_labels) = args[:7]
+         masked_lm_weights) = args[:4]
 
 
         masked_lm_log_probs = tf.reshape(masked_lm_log_probs,
@@ -257,26 +261,31 @@ def model_fn_builder(albert_config, init_checkpoint, learning_rate,
             "masked_lm_loss": masked_lm_mean_loss,
         }
 
-        sentence_order_log_probs = tf.reshape(
-            sentence_order_log_probs, [-1, sentence_order_log_probs.shape[-1]])
-        sentence_order_predictions = tf.argmax(
-            sentence_order_log_probs, axis=-1, output_type=tf.int32)
-        sentence_order_labels = tf.reshape(sentence_order_labels, [-1])
-        sentence_order_accuracy = tf.metrics.accuracy(
-            labels=sentence_order_labels,
-            predictions=sentence_order_predictions)
-        sentence_order_mean_loss = tf.metrics.mean(
-            values=sentence_order_example_loss)
-        metrics.update({
-            "sentence_order_accuracy": sentence_order_accuracy,
-            "sentence_order_loss": sentence_order_mean_loss
-        })
+        # sentence_order_log_probs = tf.reshape(
+        #     sentence_order_log_probs, [-1, sentence_order_log_probs.shape[-1]])
+        # sentence_order_predictions = tf.argmax(
+        #     sentence_order_log_probs, axis=-1, output_type=tf.int32)
+        # sentence_order_labels = tf.reshape(sentence_order_labels, [-1])
+        # sentence_order_accuracy = tf.metrics.accuracy(
+        #     labels=sentence_order_labels,
+        #     predictions=sentence_order_predictions)
+        # sentence_order_mean_loss = tf.metrics.mean(
+        #     values=sentence_order_example_loss)
+        # metrics.update({
+        #     "sentence_order_accuracy": sentence_order_accuracy,
+        #     "sentence_order_loss": sentence_order_mean_loss
+        # })
         return metrics
+
+      # metric_values = [
+      #     masked_lm_example_loss, masked_lm_log_probs, masked_lm_ids,
+      #     masked_lm_weights, sentence_order_example_loss,
+      #     sentence_order_log_probs, sentence_order_labels
+      # ]
 
       metric_values = [
           masked_lm_example_loss, masked_lm_log_probs, masked_lm_ids,
-          masked_lm_weights, sentence_order_example_loss,
-          sentence_order_log_probs, sentence_order_labels
+          masked_lm_weights
       ]
 
       eval_metrics = (metric_fn, metric_values)
@@ -398,7 +407,7 @@ def input_fn_builder(input_files,
         # Note: We keep this feature name `next_sentence_labels` to be
         # compatible with the original data created by lanzhzh@. However, in
         # the ALBERT case it does represent sentence_order_labels.
-        "next_sentence_labels": tf.FixedLenFeature([1], tf.int64),
+        # "next_sentence_labels": tf.FixedLenFeature([1], tf.int64),
     }
 
     if FLAGS.masked_lm_budget:
