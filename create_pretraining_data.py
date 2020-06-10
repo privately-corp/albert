@@ -21,12 +21,14 @@ from __future__ import division
 from __future__ import print_function
 import collections
 import random
-from albert import tokenization
+# from albert import tokenization
+import tokenization
 import numpy as np
 import six
 from six.moves import range
 from six.moves import zip
 import tensorflow.compat.v1 as tf
+from tqdm import tqdm
 
 flags = tf.flags
 
@@ -228,6 +230,7 @@ def create_training_instances(input_files, tokenizer, max_seq_length,
   # (2) Blank lines between documents. Document boundaries are needed so
   # that the "next sentence prediction" task doesn't span between documents.
   for input_file in input_files:
+    print("read file:", input_file)
     with tf.gfile.GFile(input_file, FLAGS.input_file_mode) as reader:
       while True:
         line = reader.readline()
@@ -254,6 +257,7 @@ def create_training_instances(input_files, tokenizer, max_seq_length,
   vocab_words = list(tokenizer.vocab.keys())
   instances = []
   for _ in range(dupe_factor):
+    print(input_files[0], _)
     for document_index in range(len(all_documents)):
       instances.extend(
           create_instances_from_document(
@@ -398,10 +402,11 @@ def _is_start_piece_sp(piece):
   special_pieces.add(u"£".encode("utf-8"))
   # Note(mingdachen):
   # For foreign characters, we always treat them as a whole piece.
-  english_chars = set(list("abcdefghijklmnopqrstuvwxyz"))
+  # english_chars = set(list("abcdefghijklmnopqrstuvwxyz"))
+  german_chars = set(list("abcdefghijklmnopqrstuvwxyzäöü"))
   if (six.ensure_str(piece).startswith("▁") or
       six.ensure_str(piece).startswith("<") or piece in special_pieces or
-      not all([i.lower() in english_chars.union(special_pieces)
+      not all([str(i).lower() in german_chars.union(special_pieces)
                for i in piece])):
     return True
   else:

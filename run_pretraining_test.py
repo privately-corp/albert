@@ -23,8 +23,11 @@ import os
 import random
 import tempfile
 from absl.testing import flagsaver
-from albert import modeling
-from albert import run_pretraining
+# from albert import modeling
+# from albert import run_pretraining
+
+import modeling
+import run_pretraining
 import tensorflow.compat.v1 as tf
 
 FLAGS = tf.app.flags.FLAGS
@@ -84,6 +87,7 @@ def _create_input_file(filename,
   with tf.io.TFRecordWriter(filename) as writer:
     for _ in range(size):
       ex = _create_record(max_predictions_per_seq, max_seq_length, vocab_size)
+      print(ex)
       writer.write(ex.SerializeToString())
 
 
@@ -119,8 +123,9 @@ class RunPretrainingTest(tf.test.TestCase):
     _create_input_file(FLAGS.input_file, FLAGS.max_predictions_per_seq,
                        FLAGS.max_seq_length, vocab_size)
 
+    exit()
     # Run the pretraining.
-    run_pretraining.main(None)
+    # run_pretraining.main(None)
 
     # Verify output.
     self._verify_checkpoint_files("model.ckpt-best")
