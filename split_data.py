@@ -1,11 +1,11 @@
 import math
 
 print("reading corpus")
-with open("data/corpus_debug.txt", 'r') as file:
+with open("data/de_wiki/corpus.txt", 'r') as file:
 	lines = [line.strip() for line in file.readlines()]
 
 print("corpus size", len(lines))
-n_chunks = 10
+n_chunks = 54
 chunks = []
 chunk_size = math.ceil(len(lines)/n_chunks)
 for i in range(n_chunks):
@@ -16,6 +16,6 @@ for i in range(n_chunks):
 
 for i, chunk in enumerate(chunks):
 	print("writing chunk file:", i)
-	with open("data/corpus_debug_{}.txt".format(i), 'w') as file:
+	with open("data/de_wiki/corpus_{}.txt".format(i), 'w') as file:
 		for line in chunk:
 			file.write("{}\n".format(line))

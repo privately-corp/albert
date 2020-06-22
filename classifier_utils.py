@@ -21,10 +21,10 @@ from __future__ import print_function
 import collections
 import csv
 import os
-from albert import fine_tuning_utils
-from albert import modeling
-from albert import optimization
-from albert import tokenization
+import fine_tuning_utils
+import modeling
+import optimization
+import tokenization
 import tensorflow.compat.v1 as tf
 from tensorflow.contrib import data as contrib_data
 from tensorflow.contrib import metrics as contrib_metrics
@@ -124,6 +124,49 @@ class DataProcessor(object):
       return tokenization.preprocess_text(text, lower=self.do_lower_case)
     else:
       return tokenization.convert_to_unicode(text)
+
+class HateProcessor(DataProcessor):
+  """Processor for our German Hate data."""
+
+  def get_train_examples(self, data_dir):
+    return self._create_examples(
+      self._read_tsv(os.path.join(data_dir, "train.tsv")), "train")
+
+  def get_dev_examples(self, data_dir):
+    """See base class."""
+    return self._create_examples(
+        self._read_tsv(os.path.join(data_dir, "test.tsv")), "test")
+
+  def get_test_examples(self, data_dir):
+    """See base class."""
+    return self._create_examples(
+        self._read_tsv(os.path.join(data_dir, "test.tsv")), "test")
+
+  def get_labels(self):
+    """See base class."""
+    return ["clean", "hate"]
+
+  def _create_examples(self, lines, set_type):
+    """Creates examples for the training and dev sets."""
+    examples = []
+    for (i, line) in enumerate(lines):
+      # if i == 0:
+      #   continue
+      # Note(mingdachen): We will rely on this guid for GLUE submission.
+      # guid = self.process_text(line[0])
+      try:
+        text_a = self.process_text(line[1])
+        label = self.process_text(line[0])
+      except Exception:
+        pass
+      # text_b = self.process_text(line[9])
+      # if set_type == "test":
+      #   label = "contradiction"
+      # else:
+      #   label = self.process_text(line[-1])
+      examples.append(
+          InputExample(guid=None, text_a=text_a, text_b=None, label=label))
+    return examples
 
 
 class MnliProcessor(DataProcessor):

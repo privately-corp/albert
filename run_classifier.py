@@ -20,9 +20,9 @@ from __future__ import print_function
 
 import os
 import time
-from albert import classifier_utils
-from albert import fine_tuning_utils
-from albert import modeling
+import classifier_utils
+import fine_tuning_utils
+import modeling
 import tensorflow.compat.v1 as tf
 from tensorflow.contrib import cluster_resolver as contrib_cluster_resolver
 from tensorflow.contrib import tpu as contrib_tpu
@@ -185,6 +185,7 @@ def main(_):
       "qqp": classifier_utils.QqpProcessor,
       "qnli": classifier_utils.QnliProcessor,
       "wnli": classifier_utils.WnliProcessor,
+      "hate": classifier_utils.HateProcessor
   }
 
   if not (FLAGS.do_train or FLAGS.do_eval or FLAGS.do_predict or
@@ -238,12 +239,13 @@ def main(_):
                                   FLAGS.save_checkpoints_steps))
   else:
     iterations_per_loop = FLAGS.iterations_per_loop
+
   run_config = contrib_tpu.RunConfig(
       cluster=tpu_cluster_resolver,
       master=FLAGS.master,
       model_dir=FLAGS.output_dir,
       save_checkpoints_steps=int(FLAGS.save_checkpoints_steps),
-      keep_checkpoint_max=0,
+      keep_checkpoint_max=FLAGS.keep_checkpoint_max,
       tpu_config=contrib_tpu.TPUConfig(
           iterations_per_loop=iterations_per_loop,
           num_shards=FLAGS.num_tpu_cores,

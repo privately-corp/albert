@@ -257,7 +257,7 @@ def create_training_instances(input_files, tokenizer, max_seq_length,
   vocab_words = list(tokenizer.vocab.keys())
   instances = []
   for _ in range(dupe_factor):
-    print(input_files[0], _)
+    print(input_file, _)
     for document_index in range(len(all_documents)):
       instances.extend(
           create_instances_from_document(
