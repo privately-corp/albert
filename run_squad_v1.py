@@ -534,6 +534,7 @@ def main(_):
         subfolder,
         input_arrays=["input_ids", "input_mask", "segment_ids"],
         output_arrays=["start_logits", "end_logits"])
+    converter._experimental_new_quantizer = True  # pylint: disable=protected-access
     float_model = converter.convert()
     tflite_file = os.path.join(FLAGS.export_dir, "albert_model.tflite")
     with tf.gfile.GFile(tflite_file, "wb") as f:

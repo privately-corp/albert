@@ -170,31 +170,6 @@ def serving_input_receiver_fn():
   return tf.estimator.export.ServingInputReceiver(
       features=feature_map, receiver_tensors=serialized_example)
 
-def build_squad_serving_input_fn(seq_length):
-  """Builds a serving input fn for raw input."""
-
-  def _seq_serving_input_fn():
-    """Serving input fn for raw images."""
-    input_ids = tf.placeholder(
-        shape=[1, seq_length], name="input_ids", dtype=tf.int32)
-    input_mask = tf.placeholder(
-        shape=[1, seq_length], name="input_mask", dtype=tf.int32)
-    segment_ids = tf.placeholder(
-        shape=[1, seq_length], name="segment_ids", dtype=tf.int32)
-    # label_ids = tf.placeholder(
-    #     shape=[1, seq_length], name="label_ids", dtype=tf.int32)
-
-    inputs = {
-        "input_ids": input_ids,
-        "input_mask": input_mask,
-        "segment_ids": segment_ids,
-        # "label_ids": label_ids
-    }
-    return tf.estimator.export.ServingInputReceiver(features=inputs,
-                                                    receiver_tensors=inputs)
-
-  return _seq_serving_input_fn
-
 
 def main(_):
   tf.logging.set_verbosity(tf.logging.INFO)
@@ -524,7 +499,9 @@ def main(_):
       tf.logging.info("***** Predict results *****")
       for (i, (example, prediction)) in\
           enumerate(zip(predict_examples, result)):
-
+        print("example:", vars(example))
+        print("prediction:", prediction)
+        exit()
         probabilities = prediction["probabilities"]
         if i >= num_actual_predict_examples:
           break
@@ -541,38 +518,15 @@ def main(_):
         num_written_lines += 1
     assert num_written_lines == num_actual_predict_examples
 
-  # if FLAGS.export_dir:
-  #   tf.gfile.MakeDirs(FLAGS.export_dir)
-  #   checkpoint_path = os.path.join(FLAGS.output_dir, "model.ckpt-best")
-  #   tf.logging.info("Starting to export model.")
-  #   subfolder = estimator.export_saved_model(
-  #       export_dir_base=FLAGS.export_dir,
-  #       serving_input_receiver_fn=serving_input_receiver_fn,
-  #       checkpoint_path=checkpoint_path)
-  #   tf.logging.info("Model exported to %s.", subfolder)
-
   if FLAGS.export_dir:
     tf.gfile.MakeDirs(FLAGS.export_dir)
     checkpoint_path = os.path.join(FLAGS.output_dir, "model.ckpt-best")
-    squad_serving_input_fn = (
-        build_squad_serving_input_fn(FLAGS.max_seq_length))
     tf.logging.info("Starting to export model.")
     subfolder = estimator.export_saved_model(
-        export_dir_base=os.path.join(FLAGS.export_dir, "saved_model"),
-        serving_input_receiver_fn=squad_serving_input_fn)
-
-    tf.logging.info("Starting to export TFLite.")
-    converter = tf.lite.TFLiteConverter.from_saved_model(
-        subfolder,
-        input_arrays=["input_ids", "input_mask", "segment_ids"],
-        output_arrays=["probabilities"])
-    converter._experimental_new_quantizer = True  # pylint: disable=protected-access
-
-    float_model = converter.convert()
-    tflite_file = os.path.join(FLAGS.export_dir, "albert_model.tflite")
-    with tf.gfile.GFile(tflite_file, "wb") as f:
-      f.write(float_model)
-
+        export_dir_base=FLAGS.export_dir,
+        serving_input_receiver_fn=serving_input_receiver_fn,
+        checkpoint_path=checkpoint_path)
+    tf.logging.info("Model exported to %s.", subfolder)
 
 if __name__ == "__main__":
   flags.mark_flag_as_required("data_dir")

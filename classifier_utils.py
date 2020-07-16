@@ -140,7 +140,7 @@ class HateProcessor(DataProcessor):
   def get_test_examples(self, data_dir):
     """See base class."""
     return self._create_examples(
-        self._read_tsv(os.path.join(data_dir, "test_sg.tsv")), "test")
+        self._read_tsv(os.path.join(data_dir, "test.tsv")), "test")
 
   def get_labels(self):
     """See base class."""
@@ -158,7 +158,7 @@ class HateProcessor(DataProcessor):
         text_a = self.process_text(line[1])
         label = self.process_text(line[0])
       except Exception:
-        pass
+        continue
       # text_b = self.process_text(line[9])
       # if set_type == "test":
       #   label = "contradiction"
@@ -615,6 +615,7 @@ def convert_single_example(ex_index, example, label_list, max_seq_length,
       label_map[label] = i
 
   tokens_a = tokenizer.tokenize(example.text_a)
+
   tokens_b = None
   if example.text_b:
     tokens_b = tokenizer.tokenize(example.text_b)
@@ -885,6 +886,11 @@ def model_fn_builder(albert_config, num_labels, init_checkpoint, learning_rate,
         create_model(albert_config, is_training, input_ids, input_mask,
                      segment_ids, label_ids, num_labels, use_one_hot_embeddings,
                      task_name, hub_module)
+
+
+    # logits = tf.identity(logits, name="logits")
+    probabilities = tf.identity(probabilities, name="probabilities")
+    # predictions = tf.identity(predictions, name="predictions")
 
     tvars = tf.trainable_variables()
     initialized_variable_names = {}
