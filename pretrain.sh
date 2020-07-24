@@ -1,10 +1,10 @@
 python run_pretraining.py \
-    --input_file=data/corpus_preproc_1.tfrecord \
-    --output_dir=v1/ \
+    --input_file=training_corpora/de_wiki/*, training_corpora/open_legal_data/* \
+    --output_dir=models/pretrained/v1/ \
     --albert_config_file=config.json \
     --do_train \
     --do_eval \
-    --train_batch_size=64 \
+    --train_batch_size=512 \
     --eval_batch_size=64 \
     --max_seq_length=128 \
     --max_predictions_per_seq=20 \

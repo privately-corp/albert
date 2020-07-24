@@ -181,14 +181,14 @@ def build_squad_serving_input_fn(seq_length):
         shape=[1, seq_length], name="input_mask", dtype=tf.int32)
     segment_ids = tf.placeholder(
         shape=[1, seq_length], name="segment_ids", dtype=tf.int32)
-    # label_ids = tf.placeholder(
-    #     shape=[1, seq_length], name="label_ids", dtype=tf.int32)
+    label_ids = tf.placeholder(
+        shape=[1, seq_length], name="label_ids", dtype=tf.int32)
 
     inputs = {
         "input_ids": input_ids,
         "input_mask": input_mask,
         "segment_ids": segment_ids,
-        # "label_ids": label_ids
+        "label_ids": label_ids
     }
     return tf.estimator.export.ServingInputReceiver(features=inputs,
                                                     receiver_tensors=inputs)

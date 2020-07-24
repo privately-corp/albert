@@ -3,9 +3,9 @@ import os
 import numpy as np
 
 # Convert the model.
-converter = tf.lite.TFLiteConverter.from_saved_model('test2/saved_model/1594895687/')
+converter = tf.lite.TFLiteConverter.from_saved_model('test2/saved_model/1595604818//')
 converter.optimizations = [tf.lite.Optimize.DEFAULT]
-# converter.target_spec.supported_types = [tf.float16]
+converter.target_spec.supported_types = [tf.float16]
 
 # examples = np.load('examples.npy')
 # print(examples.shape)
@@ -29,5 +29,5 @@ converter.optimizations = [tf.lite.Optimize.DEFAULT]
 # converter._experimental_new_quantizer = True  # pylint: disable=protected-access
 float_model = converter.convert()
 
-with open("1594895687_int8.tflite", "wb") as file:
+with open("1595604818_float16.tflite", "wb") as file:
     file.write(float_model)

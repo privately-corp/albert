@@ -55,6 +55,9 @@ with open('data/hate_de/test_sg.tsv') as tsvin:
 		label = 1 if row[0] == 'hate' else 0
 		Y_TRUE.append(label)
 
+X = ["Du bist dumm"]
+Y_TRUE = [1]
+
 # X = X[:10]
 # Y_TRUE = Y_TRUE[:10]
 
@@ -62,17 +65,17 @@ sp_model = spm.SentencePieceProcessor()
 sp_model_ = tf.io.gfile.GFile("30k-clean.model", "rb").read()
 sp_model.LoadFromSerializedProto(sp_model_)
 
-interpreter = tf.lite.Interpreter(model_path='1594895687_int8.tflite')
+interpreter = tf.lite.Interpreter(model_path='1595604818_float32.tflite')
 interpreter.allocate_tensors()
 
 input_details = interpreter.get_input_details()
 output_details = interpreter.get_output_details()
 
 # for id in input_details:
-# 	print(id)
+# 	print(id['name'])
 # print()
 # for od in output_details:
-# 	print(od)
+# 	print(od['name'])
 # exit()
 
 Y_PRED = []
@@ -107,16 +110,25 @@ for text in tqdm.tqdm(X):
 	segment_ids = np.array(segment_ids, dtype=np.int32).reshape((1, MAX_SEQ_LEN))
 	label_ids = np.zeros((1,128), dtype=np.int32)
 
+	print("input_ids:", input_ids)
+	print("input_mask:", input_mask)
+	print("segment_ids:", segment_ids)
+
 	interpreter.set_tensor(input_details[1]['index'], input_ids)
-	interpreter.set_tensor(input_details[2]['index'], input_mask)
-	interpreter.set_tensor(input_details[0]['index'], segment_ids)
+	interpreter.set_tensor(input_details[0]['index'], input_mask)
+	interpreter.set_tensor(input_details[2]['index'], segment_ids)
 	interpreter.set_tensor(input_details[3]['index'], label_ids)
 
 	interpreter.invoke()
-	predictions = interpreter.get_tensor(output_details[0]['index'])
-	probabilities = interpreter.get_tensor(output_details[1]['index'])
+	# predictions = interpreter.get_tensor(output_details[1]['index'])
+	probabilities = interpreter.get_tensor(output_details[0]['index'])
 
-	Y_PRED.append(predictions[0])
+	# print("predictions:", predictions)
+	# print("probabilities:", probabilities)
+
+	Y_PRED.append(np.argmax(probabilities))
+
+print(Y_PRED)
 t1 = time.time()
 print("time: ", (t1 - t0))
 print("Y_TRUE:", Y_TRUE)

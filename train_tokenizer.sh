@@ -1,5 +1,5 @@
 spm_train \
---input data/de_wiki/corpus.txt \
+--input data/de_corpus/corpus.txt \
 --model_prefix=30k-clean \
 --vocab_size=30000 \
 --pad_id=0 --unk_id=1 --eos_id=-1 --bos_id=-1 \
