@@ -230,7 +230,6 @@ def create_training_instances(input_files, tokenizer, max_seq_length,
   # (2) Blank lines between documents. Document boundaries are needed so
   # that the "next sentence prediction" task doesn't span between documents.
   for input_file in input_files:
-    print("read file:", input_file)
     with tf.gfile.GFile(input_file, FLAGS.input_file_mode) as reader:
       while True:
         line = reader.readline()

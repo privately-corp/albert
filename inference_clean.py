@@ -65,7 +65,7 @@ sp_model = spm.SentencePieceProcessor()
 sp_model_ = tf.io.gfile.GFile("30k-clean.model", "rb").read()
 sp_model.LoadFromSerializedProto(sp_model_)
 
-interpreter = tf.lite.Interpreter(model_path='1595604818_float32.tflite')
+interpreter = tf.lite.Interpreter(model_path='1595604818_float16.tflite')
 interpreter.allocate_tensors()
 
 input_details = interpreter.get_input_details()
@@ -124,7 +124,7 @@ for text in tqdm.tqdm(X):
 	probabilities = interpreter.get_tensor(output_details[0]['index'])
 
 	# print("predictions:", predictions)
-	# print("probabilities:", probabilities)
+	print("probabilities:", probabilities)
 
 	Y_PRED.append(np.argmax(probabilities))
 

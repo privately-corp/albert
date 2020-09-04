@@ -3,13 +3,14 @@ from sklearn.metrics import classification_report
 
 Y_TRUE = []
 c = 0
-with open("data/hate_de/test_sg.tsv") as file:
+# with open("data/hate_de/test_sg.tsv") as file:
+with open("data/germeval2018/test.tsv") as file:
 	for line in file:
 		parts = line.split("\t")
 		Y_TRUE.append(parts[0])
 
 Y_PRED = []
-with open("sg_results.tsv") as tsvin:
+with open("models/finetuned/test_4/submit_results.tsv") as tsvin:
 	for i, row in enumerate(csv.reader(tsvin, delimiter="\t")):
 		if i == 0:
 			continue

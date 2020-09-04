@@ -1055,13 +1055,55 @@ body .markdown-body
 .codehilite .vi{color:teal}
 .codehilite .il{color:#009999}
 .codehilite .gc{color:#999;background-color:#EAF2F5}
-</style><title>INSTRUCTIONS</title></head><body><article class="markdown-body"><h1 id="pretraining-instructions">Pretraining Instructions<a class="headerlink" href="#pretraining-instructions" title="Permanent link"></a></h1>
-<p>There are three corpora under data/de_corpus</p>
+</style><title>INSTRUCTIONS</title></head><body><article class="markdown-body"><h1 id="pretraining-finetuning-instructions">Pretraining &amp; Finetuning Instructions<a class="headerlink" href="#pretraining-finetuning-instructions" title="Permanent link"></a></h1>
+<h2 id="text-corpora">Text Corpora<a class="headerlink" href="#text-corpora" title="Permanent link"></a></h2>
+<h3 id="german">German<a class="headerlink" href="#german" title="Permanent link"></a></h3>
+<p>The full German corpus (16 GB) constitutes four separate corpora:</p>
 <ul>
-<li>DE Wiki: <code>de_wiki/</code> (5.4 GB, already split into 54 chunk files under chunks/)</li>
-<li>OpenLegalData: <code>OpenLegalData/</code> (1.8 GB, already split into 18 chunk files under chunks/)</li>
-<li>EUbookshop: <code>EUbookshop/</code> (2.2 GB, not yet split as can&rsquo;t divide corpus into documents)</li>
+<li>DE Wiki: <code>de_wiki/</code> (5.5 GB)</li>
+<li>OpenLegalData: <code>open_legal_data/</code> (1.8 GB)</li>
+<li>EUbookshop: <code>eu_bookshop/</code> (2.2 GB)</li>
+<li>Paracrawl: <code>paracrawl/</code> (6 GB)</li>
 </ul>
+<h4 id="de-wiki">DE Wiki<a class="headerlink" href="#de-wiki" title="Permanent link"></a></h4>
+<p>Dumps obtained from: <a href="https://dumps.wikimedia.org/dewiki/">https://dumps.wikimedia.org/dewiki/</a></p>
+<p>Current dump used: <code>20200720</code></p>
+<p>Select a dump version and download the multistream xml archive:</p>
+<div class="codehilite"><pre>dewiki-&lt;dump-version&gt;-pages-articles-multistrebunzip2am.xml.bz2 
+</pre></div>
+
+<p>where <code>&lt;dump-version&gt;</code> is the timestamp for the relevant dump.</p>
+<p>The dump archive can be downloaded using <code>wget</code>, e.g.:</p>
+<div class="codehilite"><pre>wget https://dumps.wikimedia.org/dewiki/&lt;dump-version&gt;/dewiki-&lt;dump-version&gt;-pages-articles-multistream.xml.bz2
+</pre></div>
+
+<p>Extract the archive:</p>
+<div class="codehilite"><pre>bunzip2 dewiki-&lt;dump-version&gt;-pages-articles-multistream.xml.bz2
+</pre></div>
+
+<p>Next, we use <a href="https://github.com/attardi/wikiextractor">wikiextractor</a> to extract the text articles from the xml dump. Install <code>wikiextractor</code> using <code>pip</code>:</p>
+<div class="codehilite"><pre>pip install wikiextractor
+</pre></div>
+
+<p>And use it to extract the text corpus from the XML dump as follows:</p>
+<div class="codehilite"><pre>python -m wikiextractor.WikiExtractor -o de_wiki_articles dewiki-&lt;dump-version&gt;-pages-articles-multistream.xml
+</pre></div>
+
+<p>preprocess the corpus:</p>
+<div class="codehilite"><pre>python preprocess_corpus.py de_wiki
+</pre></div>
+
+<p>This will output <code>de_wiki_corpus_preproc.txt</code>.</p>
+<h4 id="openlegaldata">OpenLegalData<a class="headerlink" href="#openlegaldata" title="Permanent link"></a></h4>
+<p>Dumps obtained from: <a href="https://openlegaldata.io/research/2019/02/19/court-decision-dataset.html">https://openlegaldata.io/research/2019/02/19/court-decision-dataset.html</a></p>
+<p>The dump archive can be downloaded using <code>wget</code>, e.g.:</p>
+<div class="codehilite"><pre>wget https://static.openlegaldata.io/dumps/de/2019-02-19_oldp_cases.json.gz
+</pre></div>
+
+<p>Extract the archive:</p>
+<div class="codehilite"><pre>gunzip 2019-02-19_oldp_cases.json.gz
+</pre></div>
+
 <h2 id="1-split-corpora-into-chunks">1. Split corpora into chunks<a class="headerlink" href="#1-split-corpora-into-chunks" title="Permanent link"></a></h2>
 <p>To split a corpus, use the following command:</p>
 <div class="codehilite"><pre>split -n &lt;N_PARTS&gt; -d &lt;CORPUS_FILE&gt;

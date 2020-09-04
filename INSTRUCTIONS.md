@@ -1,10 +1,80 @@
-# Pretraining Instructions
+# Pretraining & Finetuning Instructions
 
-There are three corpora under data/de_corpus
+## Text Corpora
 
-- DE Wiki: `de_wiki/` (5.4 GB, already split into 54 chunk files under chunks/)
-- OpenLegalData: `OpenLegalData/` (1.8 GB, already split into 18 chunk files under chunks/)
-- EUbookshop: `EUbookshop/` (2.2 GB, not yet split as can't divide corpus into documents)
+### German
+
+The full German corpus (16 GB) constitutes four separate corpora:
+
+- DE Wiki: `de_wiki/` (5.5 GB)
+- OpenLegalData: `open_legal_data/` (1.8 GB)
+- EUbookshop: `eu_bookshop/` (2.2 GB)
+- Paracrawl: `paracrawl/` (6 GB)
+
+#### DE Wiki
+
+Dumps obtained from: https://dumps.wikimedia.org/dewiki/
+
+Current dump used: `20200720`
+
+Select a dump version and download the multistream xml archive:
+
+```
+dewiki-<dump-version>-pages-articles-multistrebunzip2am.xml.bz2 
+```
+
+where `<dump-version>` is the timestamp for the relevant dump.
+
+The dump archive can be downloaded using `wget`, e.g.:
+
+```
+wget https://dumps.wikimedia.org/dewiki/<dump-version>/dewiki-<dump-version>-pages-articles-multistream.xml.bz2
+```
+
+Extract the archive:
+
+```
+bunzip2 dewiki-<dump-version>-pages-articles-multistream.xml.bz2
+```
+
+Next, we use [wikiextractor](https://github.com/attardi/wikiextractor) to extract the text articles from the xml dump. Install `wikiextractor` using `pip`:
+
+
+```
+pip install wikiextractor
+```
+
+And use it to extract the text corpus from the XML dump as follows:
+
+```
+python -m wikiextractor.WikiExtractor -o de_wiki_articles dewiki-<dump-version>-pages-articles-multistream.xml
+```
+
+preprocess the corpus:
+
+```
+python preprocess_corpus.py de_wiki
+```
+
+This will output `de_wiki_corpus_preproc.txt`.
+
+
+#### OpenLegalData
+
+Dumps obtained from: https://openlegaldata.io/research/2019/02/19/court-decision-dataset.html
+
+The dump archive can be downloaded using `wget`, e.g.:
+
+```
+wget https://static.openlegaldata.io/dumps/de/2019-02-19_oldp_cases.json.gz
+```
+
+Extract the archive:
+
+```
+gunzip 2019-02-19_oldp_cases.json.gz
+```
+
 
 ## 1. Split corpora into chunks
 

@@ -42,9 +42,23 @@ def preprocess_text(inputs, remove_space=True, lower=False):
       outputs = six.ensure_text(outputs, "utf-8")
     except UnicodeDecodeError:
       outputs = six.ensure_text(outputs, "latin-1")
+  
+  # normalization while handling german umlauts
+  outputs_norm = ''
+  umlauts = 'äÄöÖüÜ'
+  for char in outputs:
+    if char not in umlauts:
+      char_norm = unicodedata.normalize("NFKD", char)
+      char_parts = [c for c in char_norm]
+      outputs_norm += char_parts[0]
+    else:
+      outputs_norm += char
+      
+  outputs = outputs_norm
 
-  outputs = unicodedata.normalize("NFKD", outputs) # this strips umlauts
-  outputs = "".join([c for c in outputs if not unicodedata.combining(c)])
+  # outputs = unicodedata.normalize("NFKD", outputs)
+  # outputs = "".join([c for c in outputs if not unicodedata.combining(c)]) # this strips umlauts
+
   if lower:
     outputs = outputs.lower()
 
